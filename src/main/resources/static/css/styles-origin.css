@@ -1,0 +1,82 @@
+/* MODE CLAR (per defecte) */
+:root {
+    --color-bg: #f5f5f5;
+    --color-card-bg: #ffffff;
+    --color-text: #222222;
+
+    --color-primary: #0d6efd;
+    --color-primary-hover: #0b5ed7;
+
+    --color-danger: #dc3545;
+    --color-danger-hover: #bb2d3b;
+
+    --color-icon: white;
+    --color-icon-hover: #ffc107;
+    
+    --navbar-btn-color: #ffffff; 
+    --navbar-btn-border: #ffffff;
+    
+    --color-success: #198754; 
+    --color-success-hover: #157347;
+    --color-success-text: #ffffff;
+}
+
+/* MODE FOSC */
+:root.dark {
+    --color-bg: #1e1e1e;
+    --color-card-bg: #2c2c2c;
+    --color-text: #f1f1f1;
+
+    --color-primary: #4dabf7;
+    --color-primary-hover: #339af0;
+
+    --color-danger: #ff6b6b;
+    --color-danger-hover: #fa5252;
+
+    --color-icon: #f1f1f1;
+    --color-icon-hover: #ffd43b;
+    
+    --navbar-btn-color: #f8f9fa;
+    --navbar-btn-border: #f8f9fa;
+    
+    --color-success: #198754; 
+    --color-success-hover: #157347;
+    --color-success-text: #ffffff;
+}
+
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+* {
+    transition: background-color .50s ease, color .50s ease, border-color .50s ease;
+}
+
+#themeToggle, #backHomeBtn {
+    padding: 6px 10px;
+}
+
+#themeToggle i, #backHomeBtn i {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1.4rem;
+}
+
+#themeToggle, #backHomeBtn {
+    color: var(--navbar-btn-color) !important;
+    border-color: var(--navbar-btn-border) !important;
+}
+
+/* Hover */
+#themeToggle:hover, #backHomeBtn:hover {
+    background-color: var(--navbar-btn-color) !important;
+    color: var(--color-bg) !important;
+}
+
+
+.btn-success {
+    color: var(--color-success-text) !important;
+}
+

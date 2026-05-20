@@ -1,0 +1,56 @@
+body {
+    background: var(--color-bg);
+}
+
+.main-container {
+    margin-top: 80px; /* espai sota la navbar */
+}
+
+
+/* NAVBAR */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+/* TARGETES */
+.product-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform .15s ease-in-out;
+    background: var(--color-card-bg);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+}
+
+.product-card img {
+    height: 180px;
+    object-fit: cover;
+    background: var(--color-card-hover-bg);
+}
+
+/* BOTÓ */
+.add-cart-btn {
+    background: var(--color-primary);
+    border: none;
+    color: white;
+}
+
+.add-cart-btn:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ICONA CARRO */
+.cart-icon {
+    font-size: 1.4rem;
+    color: var(--color-icon);
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+.cart-icon:hover {
+    color: var(--color-icon-hover);
+}

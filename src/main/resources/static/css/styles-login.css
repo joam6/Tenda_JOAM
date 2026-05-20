@@ -1,0 +1,36 @@
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.card {
+    background-color: var(--color-card-bg);
+    border-radius: 10px;
+}
+
+button {
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+.btn-outline-secondary {
+    color: var(--color-outline);
+    border-color: var(--color-outline);
+}
+
+.text-danger {
+    color: var(--color-error) !important;
+}
+
+.text-success {
+    color: var(--color-success-text) !important;
+}

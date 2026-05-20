@@ -1,0 +1,32 @@
+body {
+    background: var(--color-bg);
+}
+
+/* TARGETES */
+.card {
+    border: none;
+    border-radius: 12px;
+    background: var(--color-card-bg);
+    color: var(--color-text);
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--color-card-border);
+    background: var(--color-card-bg);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* BOTÓ ELIMINAR */
+.btn-remove {
+    background: var(--color-danger);
+    border: none;
+    color: white;
+}
+
+.btn-remove:hover {
+    background: var(--color-danger-hover);
+}
