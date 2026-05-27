@@ -5,28 +5,79 @@
 
 	<div id="navbar-right" class="d-flex align-items-center gap-3">
 
+		<button id="addProductBtn" class="btn btn-success d-none"
+			data-bs-toggle="modal" data-bs-target="#modalAfegirProducte">
+			<i class="bi bi-plus-circle-fill me-1"></i> Afegir Producte
+		</button>
 
-		<!-- ICONA CARRO (només si loguejat) -->
-		<span id="cartIcon" class="cart-icon d-none"
-			onclick="window.location.href='personal.html'"> 🛒 </span>
+		<div id="cartIcon" class="d-none position-relative"
+			style="cursor: pointer;"
+			onclick="window.location.href='personal.html'">
+			<i class="bi bi-cart3 text-white fs-4"></i> <span id="cartCount"
+				class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+				style="font-size: 0.65rem;"> 0 </span>
+		</div>
 
-		<!-- TOGGLE MODE FOSC / CLAR -->
 		<button id="themeToggle" class="btn btn-outline-light">
 			<i id="themeIcon" class="bi bi-moon-fill fs-4"></i>
 		</button>
 
-
-		<!-- BOTÓ LOGIN -->
 		<button id="loginBtn" class="btn btn-primary">Iniciar sessió</button>
 
 		<button id="backHomeBtn" class="btn btn-outline-light d-none">
 			<i class="bi bi-house-door-fill fs-4"></i>
 		</button>
 
-
-		<!-- NOM + LOGOUT (si loguejat) -->
 		<span id="userName" class="text-white fw-bold d-none"></span>
 		<button id="logoutBtn" class="btn btn-danger btn-sm d-none">Tancar
 			sessió</button>
+
+		<div class="modal fade" id="modalAfegirProducte" tabindex="-1"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Afegir Nou Producte</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="formAfegirProducte" enctype="multipart/form-data">
+							<div class="mb-3">
+								<label>Nom del Producte</label> <input type="text" id="pNom"
+									class="form-control" required>
+							</div>
+							<div class="mb-3">
+								<label>Preu</label> <input type="number" id="pPreu"
+									class="form-control" step="0.01" required>
+							</div>
+							<div class="mb-3">
+								<label>Categoria</label> <input type="text" id="pCategoria"
+									class="form-control" required>
+							</div>
+							<div class="mb-3">
+								<label>Descripció</label>
+								<textarea id="pDescripcio" class="form-control" rows="3"
+									required></textarea>
+							</div>
+							<div class="mb-3">
+								<label>Stock</label> <input type="number" id="pStock"
+									class="form-control" required>
+							</div>
+							<div class="mb-3">
+								<label>Imatge</label> <input type="file" id="pImatge"
+									class="form-control" accept="image/*" required>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Cancel·lar</button>
+						<button type="button" class="btn btn-primary"
+							onclick="guardarProducte()">Guardar Producte</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </nav>

@@ -1,5 +1,6 @@
 package com.tendajoam.entity.cart;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tendajoam.entity.product.Producte;
 import jakarta.persistence.*;
 
@@ -14,6 +15,7 @@ public class CarroProducte {
     @ManyToOne
     @MapsId("idCarrito")
     @JoinColumn(name = "id_carrito")
+    @JsonIgnore 
     private Carro carro;
 
     @ManyToOne

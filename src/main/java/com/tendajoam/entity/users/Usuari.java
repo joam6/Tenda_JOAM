@@ -20,6 +20,12 @@ public class Usuari {
 	@Enumerated(EnumType.STRING)
 	private Rol rol;
 
+	private boolean actiu = false;
+
+	// 🏠 NOU CAMP PER A LA BASE DE DADES
+	@Column(name = "direccio", length = 255)
+	private String direccio;
+
 	public Usuari() {
 	}
 
@@ -61,5 +67,22 @@ public class Usuari {
 
 	public void setRol(Rol rol) {
 		this.rol = rol;
+	}
+
+	public boolean isActiu() {
+		return actiu;
+	}
+
+	public void setActiu(boolean actiu) {
+		this.actiu = actiu;
+	}
+
+	// ⚙️ GETTER I SETTER DE LA DIRECCIÓ
+	public String getDireccio() {
+		return direccio;
+	}
+
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
 	}
 }

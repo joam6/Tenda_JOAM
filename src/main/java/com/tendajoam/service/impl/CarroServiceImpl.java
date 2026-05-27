@@ -17,6 +17,9 @@ import com.tendajoam.repository.ClienteRepository;
 import com.tendajoam.repository.ProducteRepository;
 import com.tendajoam.service.interfaces.CarroService;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 @Transactional
 public class CarroServiceImpl implements CarroService {
@@ -37,6 +40,10 @@ public class CarroServiceImpl implements CarroService {
     // -------------------------
     // CRUD BÀSIC
     // -------------------------
+    
+    @PersistenceContext 
+    private EntityManager entityManager; 
+    
     @Override
     public List<Carro> findAll() {
         return carroRepo.findAll();
@@ -104,35 +111,52 @@ public class CarroServiceImpl implements CarroService {
     @Override
     public void eliminarProducte(String idCliente, String idProducte) {
         Carro carro = getCarroByCliente(idCliente);
+        String idCarrito = carro.getIdCarrito();
 
-        CarroProducteId id = new CarroProducteId(carro.getIdCarrito(), idProducte);
+        // 1. Esborrat natiu (ja ho tens i funciona)
+        carroProducteRepo.deleteByNativeQuery(idCarrito, idProducte);
+        
+        // 2. FORÇA la base de dades a descartar tot el que hi ha en memòria
+        entityManager.flush();
+        entityManager.clear();
 
-        carroProducteRepo.deleteById(id);
+        // 3. RECÀRREGA el carro des de la base de dades després d'esborrar
+        Carro carroActualitzat = carroRepo.findById(idCarrito).orElse(carro);
+        
+        // 4. Recalcula amb l'objecte refrescat
+        recalcularTotal(carroActualitzat);
+    }
 
-        recalcularTotal(carro);
+    private void recalcularTotal(Carro carro) {
+        // Aquest mètode ara rebrà un carro net de la base de dades
+        List<CarroProducte> items = carroProducteRepo.findByCarro_IdCarrito(carro.getIdCarrito());
+        
+        double total = items.stream()
+                            .mapToDouble(cp -> cp.getProducte().getPreu() * cp.getQuantitat())
+                            .sum();
+
+        carro.setTotal(total);
+        carroRepo.save(carro);
     }
 
     @Override
     public void buidarCarro(String idCliente) {
         Carro carro = getCarroByCliente(idCliente);
 
-        carroProducteRepo.deleteAll(
-                carroProducteRepo.findAll().stream()
-                        .filter(cp -> cp.getCarro().getIdCarrito().equals(carro.getIdCarrito()))
-                        .toList()
-        );
+        // 1. Esborrem els registres de la taula (Query nativa com hem fet abans)
+        // Assegura't de tenir aquest mètode al repository o fer-ho amb EntityManager
+        carroProducteRepo.deleteByCarroId(carro.getIdCarrito());
 
+        // 2. Neteja la llista en memòria per evitar que Hibernate entri en conflicte
+        carro.getCarroProductes().clear(); 
+
+        // 3. Reset del total
         carro.setTotal(0);
+
+        // 4. Neteja context i guarda
+        entityManager.flush();
+        entityManager.clear();
         carroRepo.save(carro);
     }
 
-    private void recalcularTotal(Carro carro) {
-        double total = carroProducteRepo.findAll().stream()
-                .filter(cp -> cp.getCarro().getIdCarrito().equals(carro.getIdCarrito()))
-                .mapToDouble(cp -> cp.getProducte().getPreu() * cp.getQuantitat())
-                .sum();
-
-        carro.setTotal(total);
-        carroRepo.save(carro);
-    }
 }

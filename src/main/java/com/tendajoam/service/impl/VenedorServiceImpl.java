@@ -13,6 +13,10 @@ import com.tendajoam.service.interfaces.VenedorService;
 public class VenedorServiceImpl implements VenedorService {
 
     private final VenedorRepository venedorRepository;
+    
+    public long count() {
+        return venedorRepository.count();
+    }
 
     public VenedorServiceImpl(VenedorRepository venedorRepository) {
         this.venedorRepository = venedorRepository;

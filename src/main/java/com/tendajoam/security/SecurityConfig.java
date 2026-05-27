@@ -1,7 +1,11 @@
+
 package com.tendajoam.security;
+
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -11,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
@@ -30,18 +37,18 @@ public class SecurityConfig {
 	private static final String ADMIN_URL = "/api/admins/**";
 	private static final String VENEDOR_URL = "/api/venedors/**";
 	private static final String CLIENT_URL = "/api/clientes/**";
+	private static final String PERFIL_USUARI_URL = "/api/usuaris/perfil/**";
 
 	// 🔓 RECURSOS ESTÀTICS
 	private static final String[] SWAGGER_RESOURCES = { "/swagger-ui/**", "/v3/api-docs/**" };
-	private static final String[] STATIC_RESOURCES = { "/favicon.ico", "/index.html", "/login.html", "/**/*.html",
-			"/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.svg", "/**/*.ico", "/","/main" };
+	private static final String[] STATIC_RESOURCES = { "/favicon.ico", "/index.html", "/login.html", "/*.html",
+			"/login", "/**/*.html", "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif",
+			"/**/*.svg", "/**/*.ico", "/", "/main" };
 
 	private final JwtFilter jwtFilter;
-	private final CustomUserDetailsService userDetailsService;
 
-	public SecurityConfig(JwtFilter jwtFilter, CustomUserDetailsService userDetailsService) {
+	public SecurityConfig(JwtFilter jwtFilter) {
 		this.jwtFilter = jwtFilter;
-		this.userDetailsService = userDetailsService;
 	}
 
 	// 🔐 NECESSARI PER AUTENTICAR USUARIS
@@ -49,8 +56,6 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
-
 
 	// 🔐 AuthenticationManager (OBLIGATORI PER AL LOGIN)
 	@Bean
@@ -61,30 +66,51 @@ public class SecurityConfig {
 	// 🔐 CADENA DE SEGURETAT
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
+				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth
+						// 1. Rutes Públiques (PRIMER)
+						.requestMatchers(HttpMethod.POST, "/api/productes/afegir").permitAll()
+						.requestMatchers(STATIC_RESOURCES).permitAll()
+					    .requestMatchers(SWAGGER_RESOURCES).permitAll()
+					    .requestMatchers("/api/auth/**").permitAll() // Traiem productes d'aquí
+					    .requestMatchers("/api/usuaris/perfil/**").permitAll()
+					    .requestMatchers("/favicon.ico", "/css/**", "/js/**", "/img/**").permitAll()
 
-		http.csrf(csrf -> csrf.disable())
-				        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				        .authorizeHttpRequests(auth -> auth
+					    // 2. Rutes de Productes (GET obert, POST/PUT/DELETE protegit)
+					    .requestMatchers(HttpMethod.GET, "/api/productes/**").permitAll()
+					    .requestMatchers(HttpMethod.POST, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
+					    .requestMatchers(HttpMethod.PUT, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
+					    .requestMatchers(HttpMethod.DELETE, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
 
-						// 🔓 RUTES PÚBLIQUES
-		        		
-						.requestMatchers(LOGIN_URL).permitAll().requestMatchers(REGISTER_URL).permitAll()
-						.requestMatchers(AUTH_URL).permitAll().requestMatchers(PRODUCTES_URL).permitAll()
-						.requestMatchers(STATIC_RESOURCES).permitAll().requestMatchers(SWAGGER_RESOURCES).permitAll()
+					    // 3. Rutes de Carro
+					    .requestMatchers(HttpMethod.DELETE, "/api/carro/*/buidar").hasRole("CLIENT")
+					    .requestMatchers(HttpMethod.DELETE, "/api/carro/*/eliminar/*").hasRole("CLIENT")
+					    .requestMatchers("/api/carro/**").hasRole("CLIENT")
+						
+						.requestMatchers(HttpMethod.POST, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
 
-	
-						// 🔐 RUTES AMB ROLS
-						.requestMatchers(ADMIN_URL).hasRole(ADMIN).requestMatchers(VENEDOR_URL).hasRole(VENEDOR)
-						.requestMatchers(CLIENT_URL).hasRole(CLIENT)
+						.requestMatchers(ADMIN_URL).hasRole("ADMIN").requestMatchers(VENEDOR_URL).hasRole("VENEDOR")
+						.requestMatchers(CLIENT_URL).hasRole("CLIENT")
 
-						// 🔐 RESTA D’ENDPOINTS
-						.anyRequest().authenticated());
-
-		
-		
-
-		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+						// 4. Qualsevol altra ruta requereix autenticació
+						.anyRequest().authenticated())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+	    CorsConfiguration config = new CorsConfiguration();
+	    config.setAllowedOrigins(List.of("*"));
+	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	    // AFEGEIX AIXÒ PER SEGURETAT:
+	    config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+	    config.setAllowCredentials(false); 
+	    
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", config);
+	    return source;
 	}
 }

@@ -1,0 +1,53 @@
+.card {
+    background-color: var(--color-card-bg) !important;
+    border: none !important;
+    border-radius: 10px !important;
+}
+
+h3, label {
+    color: var(--color-text) !important;
+}
+
+.form-control {
+    background-color: var(--color-bg) !important;
+    color: var(--color-text) !important;
+    border: 1px solid var(--navbar-btn-border) !important;
+}
+
+.form-control:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.btn {
+    font-weight: 600 !important;
+}
+
+.btn-success {
+    background-color: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+    color: var(--color-success-text) !important;
+}
+
+.btn-success:hover {
+    background-color: var(--color-success-hover) !important;
+    border-color: var(--color-success-hover) !important;
+}
+
+.btn-outline-secondary {
+    color: var(--color-text) !important;
+    border-color: var(--navbar-btn-border) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--navbar-btn-color) !important;
+    color: #212529 !important;
+}
+
+.text-danger {
+    color: var(--color-danger) !important;
+}
+
+.text-success {
+    color: var(--color-success) !important;
+}

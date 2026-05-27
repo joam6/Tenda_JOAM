@@ -1,5 +1,6 @@
 package com.tendajoam.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.tendajoam.entity.cart.Carro;
@@ -28,9 +29,14 @@ public class CarroController {
     }
 
     @DeleteMapping("/{idCliente}/eliminar/{idProducte}")
-    public void eliminar(@PathVariable String idCliente,
-                         @PathVariable String idProducte) {
+    public ResponseEntity<Void> eliminarDelCarro(
+            @PathVariable String idCliente, 
+            @PathVariable String idProducte) {
+        
+        System.out.println("DEBUG: Entrant a eliminar producte: " + idProducte + " del client: " + idCliente);
+        
         carroService.eliminarProducte(idCliente, idProducte);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{idCliente}/buidar")

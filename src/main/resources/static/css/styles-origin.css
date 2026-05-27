@@ -54,29 +54,65 @@ body {
     transition: background-color .50s ease, color .50s ease, border-color .50s ease;
 }
 
-#themeToggle, #backHomeBtn {
+/* 📦 AFEGIM MIDA, VORA I COMPORTAMENT UNIFICAT */
+#themeToggle, #backHomeBtn, #cartIcon {
     padding: 6px 10px;
+    color: var(--navbar-btn-color) !important;
+    border: 1px solid var(--navbar-btn-border) !important; /* Forçem la vora fina perquè el div del carro també la tinga */
+    background-color: transparent !important; /* Evita el bloc blanc de fons inicial */
+    border-radius: var(--bs-border-radius); /* Arredonit natiu de Bootstrap per a fer joc amb el botó de tancar sessió */
+    display: inline-flex; /* Millor alineació interna per a les icones */
+    align-items: center;
+    justify-content: center;
 }
 
-#themeToggle i, #backHomeBtn i {
+#themeToggle i, #backHomeBtn i, #cartIcon i {
     display: inline-block;
     vertical-align: middle;
     font-size: 1.4rem;
 }
 
-#themeToggle, #backHomeBtn {
-    color: var(--navbar-btn-color) !important;
-    border-color: var(--navbar-btn-border) !important;
-}
-
-/* Hover */
-#themeToggle:hover, #backHomeBtn:hover {
+/* 🔥 HOVER UNIFICAT (Ara sí, tots responen igual) */
+#themeToggle:hover, #backHomeBtn:hover, #cartIcon:hover {
     background-color: var(--navbar-btn-color) !important;
-    color: var(--color-bg) !important;
+    color: #212529 !important; /* En fer hover, la icona es pinta del color fosc de la navbar text-dark */
+    cursor: pointer;
 }
-
 
 .btn-success {
     color: var(--color-success-text) !important;
 }
 
+/* ==========================================
+   📌 TRUC STICKY FOOTER (Flexbox Global)
+   ========================================== */
+
+/* Forcem que l'estructura HTML sencera ocupe el 100% de la pantalla */
+html {
+    height: 100%;
+}
+
+/* Convertim el body en un contenidor Flex vertical */
+body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+/* Triem el contenidor dinàmic. Bootstrap fa servir "main", 
+   la teva classe ".main-container" o el div on s'injecten les dades.
+   Aquest element creixerà per a empènyer el footer cap al fons. */
+main, 
+.main-container, 
+.container.my-5,
+#productes {
+    flex: 1 0 auto;
+}
+
+/* El footer manté la seva mida natural sense deformar-se */
+footer, 
+#footer-container {
+    flex-shrink: 0;
+    margin-top: auto; /* Empenta final de seguretat */
+}

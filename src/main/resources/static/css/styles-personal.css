@@ -1,8 +1,30 @@
-body {
-    background: var(--color-bg);
+/* ==========================================
+   📐 CONFIGURACIÓ ESTRUCTURAL (FOOTER A BAIX DEL TOT)
+   ========================================== */
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
-/* TARGETES */
+body {
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* El main s'expandeix i empeny de forma elàstica el footer */
+.flex-grow-1 {
+    flex: 1 0 auto;
+}
+
+#footer-container {
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   🎨 TARGETES I ELEMENTS COMPARTITS
+   ========================================== */
 .card {
     border: none;
     border-radius: 12px;
@@ -30,3 +52,108 @@ body {
 .btn-remove:hover {
     background: var(--color-danger-hover);
 }
+
+/* ==========================================
+   🍞 ESTILS DELS TOASTS (ADAPTATS A VARIABLES)
+   ========================================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.custom-toast {
+    min-width: 280px;
+    padding: 15px 20px;
+    border-radius: 6px;
+    color: var(--color-success-text);
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(120%);
+    animation: slideIn 0.3s forwards, fadeOut 0.3s linear 3s forwards;
+}
+
+.toast-success { background-color: var(--color-success); }
+.toast-error { background-color: var(--color-danger); }
+.toast-info { background-color: var(--color-primary); }
+
+@keyframes slideIn { to { transform: translateX(0); } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+
+
+/* ==========================================
+   ⚠️ ESTILS DEL MODAL DE CONFIRMACIÓ
+   ========================================== */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal-box {
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    animation: scaleUp 0.2s ease-out;
+}
+
+.custom-modal-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.custom-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.custom-modal-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-modal-secondary { 
+    background-color: rgba(128, 128, 128, 0.2); 
+    color: var(--color-text); 
+}
+.btn-modal-secondary:hover { 
+    background-color: rgba(128, 128, 128, 0.3); 
+}
+
+.btn-modal-danger { 
+    background-color: var(--color-danger); 
+    color: var(--color-success-text); 
+}
+.btn-modal-danger:hover { 
+    background-color: var(--color-danger-hover); 
+}
+
+.d-none { display: none !important; }
+
+@keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }

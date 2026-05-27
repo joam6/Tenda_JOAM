@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tendajoam.entity.product.Producte;
 import com.tendajoam.service.interfaces.ProducteService;
@@ -18,6 +19,20 @@ public class ProducteController {
         this.producteService = producteService;
     }
 
+    @PostMapping("/afegir")
+    public ResponseEntity<?> afegirProducte(
+        @RequestParam("nom") String nom,
+        @RequestParam("preu") double preu,
+        @RequestParam("categoria") String categoria,
+        @RequestParam("descripcio") String descripcio,
+        @RequestParam("stock") int stock,
+        @RequestParam("idVenedor") String idVenedor,
+        @RequestParam(value = "imatge", required = false) MultipartFile imatge) {
+        
+        producteService.guardarProducteAmbImatge(nom, preu, categoria, descripcio, stock, imatge, idVenedor);
+        return ResponseEntity.ok("Producte creat!");
+    }
+    
     @GetMapping
     public ResponseEntity<List<Producte>> getAll() {
         return ResponseEntity.ok(producteService.findAll());

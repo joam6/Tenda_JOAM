@@ -16,35 +16,38 @@
 
 <body>
 
-<script src="js/js-navbar.js"></script>
+	<script src="js/js-navbar.js"></script>
 
-<div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card p-4 shadow" style="width: 350px;">
-        <h3 class="text-center mb-3">🔐 Iniciar sessió</h3>
+	<div class="d-flex justify-content-center align-items-center vh-100">
+		<div class="card p-4 shadow" style="width: 350px;">
+			<h3 class="text-center mb-3">🔐 Iniciar sessió</h3>
 
-        <form id="loginForm">
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input id="email" type="text" class="form-control" required>
-            </div>
+			<form id="loginForm">
+				<div class="mb-3">
+					<label class="form-label">Email</label> <input id="email"
+						type="text" class="form-control" required>
+				</div>
 
-            <div class="mb-3">
-                <label class="form-label">Contrasenya</label>
-                <input id="password" type="password" class="form-control" required>
-            </div>
+				<div class="mb-3">
+					<label class="form-label">Contrasenya</label> <input id="password"
+						type="password" class="form-control" required>
+				</div>
 
-            <button class="btn btn-primary w-100 mb-2">Entrar</button>
-        </form>
+				<button class="btn btn-primary w-100 mb-2">Entrar</button>
+			</form>
 
-        <button class="btn btn-outline-secondary w-100" onclick="window.location.href='register.html'">
-            Crear un compte
-        </button>
+			<button class="btn btn-outline-secondary w-100"
+				onclick="window.location.href='register.html'">Crear un
+				compte</button>
 
-        <p id="error" class="text-danger mt-3 text-center"></p>
-    </div>
-</div>
+			<p id="error" class="text-danger mt-3 text-center"></p>
+		</div>
+	</div>
 
-<script src="js/js-login.js"></script>
+	<script src="js/js-login.js"></script>
+	<!-- FOOTER -->
+	<div id="footer-container"></div>
+	<script src="js/js-footer.js"></script>
 </body>
 
 </html>

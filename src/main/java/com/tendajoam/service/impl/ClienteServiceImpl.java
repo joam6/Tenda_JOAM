@@ -13,6 +13,10 @@ import com.tendajoam.service.interfaces.ClienteService;
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+    
+    public long count() {
+        return clienteRepository.count();
+    }
 
     public ClienteServiceImpl(ClienteRepository clienteRepository) {
         this.clienteRepository = clienteRepository;
