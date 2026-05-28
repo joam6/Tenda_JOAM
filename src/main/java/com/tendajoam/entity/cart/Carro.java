@@ -17,7 +17,7 @@ public class Carro {
 	@JoinColumn(name = "id_cliente", referencedColumnName = "id_usuari")
 	private Cliente cliente;
 
-	@OneToMany(mappedBy = "carro", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "carro", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CarroProducte> carroProductes;
 
 	private double total;

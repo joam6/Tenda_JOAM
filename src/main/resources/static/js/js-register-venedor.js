@@ -39,7 +39,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
 
         // Redirigim al login al cap de 4 segons perquè puguin llegir el missatge
         setTimeout(() => {
-            window.location.href = "login.html";
+            window.location.href = "/login";
         }, 4000);
 
     } catch (error) {

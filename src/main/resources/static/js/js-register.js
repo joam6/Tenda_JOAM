@@ -34,7 +34,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         successBox.innerText = "✔ Compte creat correctament! Revisa el teu correu per confirmar-lo abans d'entrar.";
 
         setTimeout(() => {
-            window.location.href = "login.html";
+            window.location.href = "/login";
         }, 3000);
 
     } catch (error) {

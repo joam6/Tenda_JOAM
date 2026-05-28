@@ -9,6 +9,18 @@ let carroAgrupat = [];
 document.addEventListener("DOMContentLoaded", () => {
     mostrarDadesUsuari();
     inicialitzarCarro();
+	carregarHistorialComandes();
+
+    // Registrem el botó comprar només un cop en carregar la pàgina
+    const btnComprar = document.getElementById("btnComprar");
+    if (btnComprar) {
+        btnComprar.addEventListener("click", () => {
+            const modalElement = document.getElementById('modalPagament');
+            // Utilitzem la variable global bootstrap que hauria d'estar disponible
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        });
+    }
 });
 
 // -----------------------------------------------------
@@ -82,7 +94,7 @@ function cancelarEdicio() {
     document.getElementById("accionsEdicioPerfil").classList.add("d-none");
 }
 
-function guardarPerfil(event) {
+async function guardarPerfil(event) {
     event.preventDefault();
     const idUsuari = localStorage.getItem("idUsuari");
     const token = localStorage.getItem("token");
@@ -179,6 +191,12 @@ function renderCarro() {
     totalCarro.textContent = `Total: ${total.toFixed(2)} €`;
 }
 
+function calcularTotalCarro() {
+    return carroAgrupat
+        .filter(item => item.seleccionat)
+        .reduce((sum, item) => sum + (item.preu * item.quantitat), 0);
+}
+
 function toggleSeleccionat(index) {
     carroAgrupat[index].seleccionat = !carroAgrupat[index].seleccionat;
     renderCarro();
@@ -202,11 +220,7 @@ async function canviarQuantitatBD(index, canvi) {
     inicialitzarCarro();
 }
 
-
-
-// Variable per guardar quina acció està pendent
 let accioPendent = null;
-
 function obrirModal(titol, missatge, callback) {
     document.getElementById("modalTitle").textContent = titol;
     document.getElementById("modalMessage").textContent = missatge;
@@ -214,51 +228,107 @@ function obrirModal(titol, missatge, callback) {
     accioPendent = callback;
 }
 
-// Botons del modal
-document.getElementById("btnModalCancel").onclick = () => {
-    document.getElementById("confirmModal").classList.add("d-none");
-};
-
+document.getElementById("btnModalCancel").onclick = () => document.getElementById("confirmModal").classList.add("d-none");
 document.getElementById("btnModalConfirm").onclick = () => {
     document.getElementById("confirmModal").classList.add("d-none");
     if (accioPendent) accioPendent();
 };
 
-// Aquesta funció fa la crida REAL al servidor amb confirmació
 async function executarAccioEliminar(url, missatgeToast) {
     const token = localStorage.getItem("token");
     const res = await fetch(url, {
         method: "DELETE",
-        headers: { 
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        }
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" }
     });
-
-    if (res.ok) {
-        mostrarToast(missatgeToast);
-        inicialitzarCarro();
-    } else {
-        console.error("Error en petició:", res.status);
-        if (res.status === 403) {
-            mostrarToast("Accés denegat: comprova els teus permisos", "error");
-        } else {
-            mostrarToast("Error al processar l'acció", "error");
-        }
-    }
+    if (res.ok) { mostrarToast(missatgeToast); inicialitzarCarro(); }
+    else mostrarToast("Error al processar l'acció", "error");
 }
 
-// Funcions disparades pels botons (ara obren el modal)
 function eliminarLiniaSenceraBD(idProducte) {
     const idCliente = localStorage.getItem("idUsuari");
-    obrirModal("Eliminar", "Segur que vols eliminar aquest producte?", () => {
+    obrirModal("Eliminar", "Segur que vols eliminar?", () => {
         executarAccioEliminar(`http://localhost:8081/api/carro/${idCliente}/eliminar/${idProducte}`, "Producte eliminat");
     });
 }
 
 function buidarCarro() {
     const idCliente = localStorage.getItem("idUsuari");
-    obrirModal("Buidar Carro", "Segur que vols buidar tot el carret?", () => {
+    obrirModal("Buidar Carro", "Segur que vols buidar el carret?", () => {
         executarAccioEliminar(`http://localhost:8081/api/carro/${idCliente}/buidar`, "Carret buidat");
     });
+}
+
+async function processarPagament() {
+    const idCliente = localStorage.getItem("idUsuari");
+    try {
+        const res = await fetch(`http://localhost:8081/api/comandes/comprar/${idCliente}`, {
+            method: "POST",
+            headers: { 
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json" 
+            }
+        });
+
+        if (res.ok) {
+            mostrarToast("Pagament realitzat! Comanda creada.");
+            const modalElement = document.getElementById('modalPagament');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) modalInstance.hide();
+            inicialitzarCarro();
+        } else {
+            mostrarToast("Error en processar la compra", "error");
+        }
+    } catch (e) {
+        console.error("Error:", e);
+    }
+}
+
+
+// -----------------------------------------------------
+// 📦 HISTORIAL DE COMANDES
+// -----------------------------------------------------
+
+async function carregarHistorialComandes() {
+    const idCliente = localStorage.getItem("idUsuari");
+    const token = localStorage.getItem("token");
+    const tbody = document.getElementById('llistaComandesBody');
+    const missatgeBuit = document.getElementById('comandesBuides');
+    const taula = document.getElementById('taulaComandes');
+
+    if (!tbody || !idCliente || !token) return;
+
+    try {
+        const response = await fetch(`http://localhost:8081/api/comandes/client/${idCliente}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error("Error en carregar");
+
+        const comandes = await response.json();
+
+        if (comandes && comandes.length > 0) {
+            missatgeBuit.classList.add('d-none');
+            taula.classList.remove('d-none');
+            
+            tbody.innerHTML = ''; // Netegem abans d'omplir
+            
+            comandes.forEach(c => {
+                const fila = `
+                    <tr>
+                        <td><strong>${c.idComanda}</strong></td>
+                        <td>${c.data}</td>
+                        <td><button class="btn btn-sm btn-outline-info">Detalls</button></td>
+                        <td>${c.total.toFixed(2)} €</td>
+                        <td><span class="badge ${c.estat === 'PAGADA' ? 'bg-success' : 'bg-warning'}">${c.estat}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += fila;
+            });
+        } else {
+            missatgeBuit.classList.remove('d-none');
+            taula.classList.add('d-none');
+        }
+    } catch (error) {
+        console.error("Error carregant comandes:", error);
+    }
 }

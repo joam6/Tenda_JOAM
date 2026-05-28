@@ -33,6 +33,20 @@ public class ProducteController {
         return ResponseEntity.ok("Producte creat!");
     }
     
+    
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<?> editarProducte(@PathVariable String id, @RequestBody Producte producteDetails) {
+        return producteService.findById(id).map(p -> {
+            p.setNom(producteDetails.getNom());
+            p.setPreu(producteDetails.getPreu());
+            p.setCategoria(producteDetails.getCategoria());
+            p.setDescripcio(producteDetails.getDescripcio());
+            p.setStock(producteDetails.getStock());
+            producteService.save(p);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
+    }
+    
     @GetMapping
     public ResponseEntity<List<Producte>> getAll() {
         return ResponseEntity.ok(producteService.findAll());

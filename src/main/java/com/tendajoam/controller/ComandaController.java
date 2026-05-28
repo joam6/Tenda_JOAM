@@ -18,6 +18,18 @@ public class ComandaController {
         this.comandaService = comandaService;
     }
 
+    @PostMapping("/afegir")
+    public ResponseEntity<?> afegirComanda(@RequestBody Comanda comanda) {
+        // 1. Cercar l'últim ID per generar el següent
+        String ultimId = comandaService.findLastId(); // Has de crear aquest mètode al repository
+        int numero = (ultimId != null) ? Integer.parseInt(ultimId.replace("coman", "")) + 1 : 1;
+        String nouId = String.format("coman%04d", numero);
+        
+        comanda.setIdComanda(nouId);
+        comandaService.save(comanda);
+        return ResponseEntity.ok("Comanda creada: " + nouId);
+    }
+    
     @PostMapping("/comprar/{idCliente}")
     public ResponseEntity<Comanda> comprar(@PathVariable String idCliente) {
         return ResponseEntity.ok(comandaService.comprar(idCliente));
@@ -46,5 +58,10 @@ public class ComandaController {
     public ResponseEntity<Void> delete(@PathVariable String id) {
         comandaService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/client/{idCliente}")
+    public ResponseEntity<List<Comanda>> getByCliente(@PathVariable String idCliente) {
+        return ResponseEntity.ok(comandaService.findByCliente(idCliente));
     }
 }

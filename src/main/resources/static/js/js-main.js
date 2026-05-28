@@ -115,9 +115,9 @@ function carregarMesProductes() {
     const visible = (estat === "CLIENT" || estat === "ANONIM") ? "display: block;" : "display: none;";
 
     productesPagina.forEach(p => {
-		const img = (p.imatge && p.imatge.startsWith('http')) 
-		    ? p.imatge 
-		    : (p.imatge ? `/img/${p.imatge}` : "https://via.placeholder.com/300x200?text=Sense+imatge");
+        const img = (p.imatge && p.imatge.startsWith('http'))
+            ? p.imatge
+            : (p.imatge ? `/img/${p.imatge}` : "https://via.placeholder.com/300x200?text=Sense+imatge");
 
         const col = document.createElement("div");
         col.className = "col-md-3";
@@ -165,25 +165,32 @@ function carregarMesProductes() {
     }
 }
 
+
 // ----------------------
 // FINESTRA MODAL DETALL PRODUCTE
 // ----------------------
 function mostrarFinestraDetall(p) {
-	const img = (p.imatge && p.imatge.startsWith('http')) 
-	    ? p.imatge 
-	    : (p.imatge ? `/img/${p.imatge}` : "https://via.placeholder.com/300x200?text=Sense+imatge");
+    // 1. Definim totes les variables primer
+    const estat = obtenirEstatUsuari();
+    const nomVenedor = p.venedorNom || p.venedor?.nom || "Desconegut";
+    
+    const usuariLoguejat = JSON.parse(localStorage.getItem("usuari")) || {};
+    const nomVenedorLocal = (usuariLoguejat.nom || usuariLoguejat.username || localStorage.getItem("username") || "Test").trim().toLowerCase();
 
+    const img = (p.imatge && p.imatge.startsWith('http'))
+        ? p.imatge
+        : (p.imatge ? `/img/${p.imatge}` : "https://via.placeholder.com/300x200?text=Sense+imatge");
+
+    // 2. Omplim els elements visuals
     document.getElementById("modalProductTitle").innerText = p.nom;
     document.getElementById("modalProductImg").src = img;
     document.getElementById("modalProductImg").alt = p.nom;
     document.getElementById("modalProductPrice").innerText = `${p.preu} €`;
     document.getElementById("modalProductDescription").innerText = p.descripcio || "Sense descripció disponible.";
 
-    const nomVenedor = p.venedorNom || p.venedor?.nom || "Desconegut";
+    // 3. Configurar enllaç del venedor
     const vendorLink = document.getElementById("modalProductVendor");
     vendorLink.innerText = nomVenedor;
-
-    const estat = obtenirEstatUsuari();
 
     if (estat === "VENEDOR") {
         vendorLink.removeAttribute("href");
@@ -200,18 +207,30 @@ function mostrarFinestraDetall(p) {
         };
     }
 
-    const modalBtn = document.getElementById("modalAddToCartBtn");
+    // 4. Configurar visibilitat botó Edició
+    const btnEdit = document.getElementById("modalEditBtn");
+    const esPropietari = (estat === "VENDEDOR" || estat === "VENEDOR") &&
+        (nomVenedor.toLowerCase() === nomVenedorLocal.toLowerCase());
 
+    if (btnEdit) {
+        if (esPropietari) {
+            btnEdit.classList.remove("d-none");
+            btnEdit.dataset.id = p.idProducte;
+        } else {
+            btnEdit.classList.add("d-none");
+        }
+    }
+
+    // 5. Configurar botó Carro
+    const modalBtn = document.getElementById("modalAddToCartBtn");
     if (estat === "CLIENT" || estat === "ANONIM") {
         modalBtn.style.display = "block";
-
         modalBtn.onclick = () => {
             const modalElement = document.getElementById('productModal');
             const modalInstance = bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) modalInstance.hide();
 
             if (estat === "CLIENT") {
-                // CORREGIT: Ara sí enviem l'objecte 'p' complet des de la modal!
                 afegirCarro(p);
             } else {
                 mostrarNotificacioLogin();
@@ -221,6 +240,7 @@ function mostrarFinestraDetall(p) {
         modalBtn.style.display = "none";
     }
 
+    // 6. Mostrar modal
     const laMevaModal = new bootstrap.Modal(document.getElementById('productModal'));
     laMevaModal.show();
 }
@@ -414,6 +434,70 @@ function mostrarNotificacioLogin() {
     setTimeout(() => { toast.classList.add("fade-out"); }, 3500);
     setTimeout(() => {
         toast.remove();
-        window.location.href = "login.html";
+        window.location.href = "/login";
     }, 4000);
+}
+
+function obrirModalEdicio(id) {
+    const p = productesTotals.find(prod => prod.idProducte === id);
+    if (!p) return;
+
+    // Omplir el formulari
+    document.getElementById("editId").value = p.idProducte;
+    document.getElementById("editNom").value = p.nom;
+    document.getElementById("editPreu").value = p.preu;
+    document.getElementById("editCategoria").value = p.categoria;
+    document.getElementById("editDescripcio").value = p.descripcio;
+    document.getElementById("editStock").value = p.stock;
+
+    const modal = new bootstrap.Modal(document.getElementById('modalEditarProducte'));
+    modal.show();
+}
+
+async function guardarEdicio() {
+    const id = document.getElementById("editId").value;
+    const dades = {
+        nom: document.getElementById("editNom").value,
+        preu: parseFloat(document.getElementById("editPreu").value),
+        categoria: document.getElementById("editCategoria").value,
+        descripcio: document.getElementById("editDescripcio").value,
+        stock: parseInt(document.getElementById("editStock").value)
+    };
+
+    try {
+        const res = await fetch(`http://localhost:8081/api/productes/editar/${id}`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dades)
+        });
+
+        if (res.ok) {
+            mostrarToast("Producte actualitzat amb èxit!", "success");
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarProducte'));
+            modal.hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            mostrarToast("Error en actualitzar les dades", "danger");
+        }
+    } catch (e) {
+        console.error("Error:", e);
+        mostrarToast("Error de connexió", "danger");
+    }
+}
+
+function tancarDetallIObrirEdicio() {
+    const modalElement = document.getElementById('productModal');
+    const modalDetall = bootstrap.Modal.getInstance(modalElement);
+    
+    if (modalDetall) {
+        modalDetall.hide();
+        // Esperem a que el modal s'amagui completament abans d'obrir l'altre
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            const id = document.getElementById("modalEditBtn").dataset.id;
+            obrirModalEdicio(id);
+        }, { once: true });
+    }
 }

@@ -42,8 +42,8 @@ function setupNavbar() {
     const usuariLoguejat = JSON.parse(localStorage.getItem("usuari")) || {};
     const rol = localStorage.getItem("rol") || usuariLoguejat.rol || null;
 
-    const isAuthPage = window.location.pathname.includes("login.html") ||
-        window.location.pathname.includes("register.html");
+    const isAuthPage = window.location.pathname.includes("/login") ||
+        window.location.pathname.includes("/register");
 
     // --- LÒGICA DE VISIBILITAT ---
     if (isAuthPage) {
@@ -54,20 +54,20 @@ function setupNavbar() {
         if (addProductBtn) addProductBtn.classList.add("d-none");
         if (backHomeBtn) {
             backHomeBtn.classList.remove("d-none");
-            backHomeBtn.onclick = () => window.location.href = "index.html";
+            backHomeBtn.onclick = () => window.location.href = "/main";
         }
     } else if (!token) {
         // Usuari no loguejat en pàgina normal
         if (loginBtn) {
             loginBtn.classList.remove("d-none");
-            loginBtn.onclick = () => window.location.href = "login.html";
+            loginBtn.onclick = () => window.location.href = "/login";
         }
     } else {
         // Usuari loguejat
         if (loginBtn) loginBtn.classList.add("d-none");
         if (logoutBtn) {
             logoutBtn.classList.remove("d-none");
-            logoutBtn.onclick = () => { localStorage.clear(); window.location.href = "login.html"; };
+            logoutBtn.onclick = () => { localStorage.clear(); window.location.href = "/login"; };
         }
         if (userName) {
             userName.classList.remove("d-none");

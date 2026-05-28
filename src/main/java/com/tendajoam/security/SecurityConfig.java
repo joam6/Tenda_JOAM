@@ -41,9 +41,10 @@ public class SecurityConfig {
 
 	// 🔓 RECURSOS ESTÀTICS
 	private static final String[] SWAGGER_RESOURCES = { "/swagger-ui/**", "/v3/api-docs/**" };
-	private static final String[] STATIC_RESOURCES = { "/favicon.ico", "/index.html", "/login.html", "/*.html",
+	private static final String[] STATIC_RESOURCES = { "/", "/favicon.ico", "/index.html", "/login.html", "/*.html",
 			"/login", "/**/*.html", "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif",
-			"/**/*.svg", "/**/*.ico", "/", "/main" };
+			"/**/*.svg", "/**/*.ico", "/main", "/register-seller", "/register", "/personal", "/css/**", "/js/**",
+			"/img/**", "/uploads/**" };
 
 	private final JwtFilter jwtFilter;
 
@@ -71,29 +72,32 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// 1. Rutes Públiques (PRIMER)
 						.requestMatchers(HttpMethod.POST, "/api/productes/afegir").permitAll()
-						.requestMatchers(STATIC_RESOURCES).permitAll()
-					    .requestMatchers(SWAGGER_RESOURCES).permitAll()
-					    .requestMatchers("/api/auth/**").permitAll() // Traiem productes d'aquí
-					    .requestMatchers("/api/usuaris/perfil/**").permitAll()
-					    .requestMatchers("/favicon.ico", "/css/**", "/js/**", "/img/**").permitAll()
+						.requestMatchers(STATIC_RESOURCES).permitAll().requestMatchers(SWAGGER_RESOURCES).permitAll()
+						.requestMatchers("/api/auth/**").permitAll() // Traiem productes d'aquí
+						.requestMatchers("/api/usuaris/perfil/**").permitAll()
+						.requestMatchers("/favicon.ico", "/css/**", "/js/**", "/img/**").permitAll()
 
-					    // 2. Rutes de Productes (GET obert, POST/PUT/DELETE protegit)
-					    .requestMatchers(HttpMethod.GET, "/api/productes/**").permitAll()
-					    .requestMatchers(HttpMethod.POST, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
-					    .requestMatchers(HttpMethod.PUT, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
-					    .requestMatchers(HttpMethod.DELETE, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
+						// 2. Rutes de Productes (GET obert, POST/PUT/DELETE protegit)
+						.requestMatchers(HttpMethod.GET, "/api/productes/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
+						.requestMatchers(HttpMethod.DELETE, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
 
-					    // 3. Rutes de Carro
-					    .requestMatchers(HttpMethod.DELETE, "/api/carro/*/buidar").hasRole("CLIENT")
-					    .requestMatchers(HttpMethod.DELETE, "/api/carro/*/eliminar/*").hasRole("CLIENT")
-					    .requestMatchers("/api/carro/**").hasRole("CLIENT")
-						
+						// 3. Rutes de Carro
+						.requestMatchers(HttpMethod.DELETE, "/api/carro/*/buidar").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.DELETE, "/api/carro/*/eliminar/*").hasRole("CLIENT")
+						.requestMatchers("/api/carro/**").hasRole("CLIENT")
+
 						.requestMatchers(HttpMethod.POST, "/api/productes/**").hasAnyRole("VENEDOR", "ADMIN")
 
 						.requestMatchers(ADMIN_URL).hasRole("ADMIN").requestMatchers(VENEDOR_URL).hasRole("VENEDOR")
 						.requestMatchers(CLIENT_URL).hasRole("CLIENT")
 
-						// 4. Qualsevol altra ruta requereix autenticació
+						// 4. Rutas Comandes 
+						.requestMatchers("/api/comandes/client/**").hasRole("CLIENT")
+						.requestMatchers("/api/comandes/**").hasAnyRole("CLIENT", "ADMIN", "VENEDOR")
+						
+						// 5. Qualsevol altra ruta requereix autenticació
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -102,15 +106,15 @@ public class SecurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-	    CorsConfiguration config = new CorsConfiguration();
-	    config.setAllowedOrigins(List.of("*"));
-	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	    // AFEGEIX AIXÒ PER SEGURETAT:
-	    config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-	    config.setAllowCredentials(false); 
-	    
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", config);
-	    return source;
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("*"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		// AFEGEIX AIXÒ PER SEGURETAT:
+		config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+		config.setAllowCredentials(false);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
 	}
 }
